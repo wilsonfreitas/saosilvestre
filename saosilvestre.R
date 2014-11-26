@@ -1,20 +1,22 @@
 
 library(ggplot2)
 library(dplyr)
-# library(reshape)
 library(tidyr)
+library(lubridate)
 
 ss <- read.csv('saosilvestre.csv', header=TRUE, stringsAsFactor=FALSE)
 ss <- ss %>%
   mutate(data=ISOdate(ano, 12, 1), 
          horario=paste(format(data, '%Y-%m-%d'), horario),
          tempo=as.difftime(tempo),
-         pace=1000*tempo/percurso) %>%
-  arrange(ano, tempo) %>%
-  group_by(ano) %>%
+         pace=1000*tempo/percurso) %>% # criar data e pace e formatar tempo e horario
+  arrange(ano, tempo) %>%              # ordenar por tempo
+  group_by(ano) %>%                    # agrupar por ano e marcar masculino e feminino
   mutate(sexo=if (n() == 1) 'masculino' else c('masculino', 'feminino')) %>%
   ungroup
 
+## limpeza de dados
+# dados faltantes
 idx <- grep('^-', ss$pais)
 ss[idx[1], 'pais'] <- 'Brasil'
 ss[idx[2], 'pais'] <- 'Quênia'
@@ -22,10 +24,12 @@ ss[idx[2], 'pais'] <- 'Quênia'
 idx <- grep('^$', ss$pais)
 ss[idx, 'pais'] <- 'Brasil'
 
+# percurso errado - atualiza o percurso e recalcula o pace.
+# o pace ajuda a identificar o percurso errado
 ss[which(ss$pace > 4),]$percurso <- 15000
-
 ss <- ss %>% mutate(pace=1000*tempo/percurso)
 
+# agrupamento por ano para comparar masculino e feminino
 ss_ano <- ss %>%
   group_by(ano) %>% 
   summarise(corrida=n(), masculino=min(tempo), feminino=max(tempo), percurso=max(percurso)) %>%
@@ -40,8 +44,32 @@ ggplot(data=filter(ss_ano_m, corrida == 2), aes(x=ano, y=as.numeric(value), colo
   geom_point(size=3)
 
 ggplot(data=filter(ss_ano, corrida == 2), aes(x=ano, y=as.numeric(pace_dif, units='secs'))) +
-  geom_line() + stat_smooth(method=lm)
+  geom_line() + stat_smooth(method='lm')
 
 ggplot(data=ss, aes(pais, fill=sexo)) +
   geom_bar() +
   theme(axis.text.x=element_text(angle=45, hjust=1))
+
+# análise da regressão pace_dif ~ ano
+fit <- lm(as.numeric(pace_dif) ~ ano, data=filter(ss_ano, corrida == 2))
+summary(fit)
+
+# análise de temperatura
+temp <- read.csv('temperatura.csv', header=TRUE, stringsAsFactor=FALSE)
+temp <- temp %>%
+  mutate(Data=dmy(Data))
+# mutate(Data=as.Date(Data, format='%d/%m/%Y'))
+
+ggplot(data=temp, aes(x=Data, y=UmidadeRelativaMedia)) + geom_point() + stat_smooth(method='lm')
+
+fit <- lm(as.numeric(UmidadeRelativaMedia) ~ year(Data), data=temp)
+summary(fit)
+
+ggplot(data=gather(temp, variable, value, -Data, -UmidadeRelativaMedia), aes(x=Data, y=value, colour=variable)) +
+  geom_point() + stat_smooth(method='lm')
+
+fit <- lm(as.numeric(TempCompensadaMedia) ~ year(Data), data=temp)
+summary(fit)
+
+# relacionando pace masculino e UmidadeRelativaMedia e TempCompensadaMedia
+
