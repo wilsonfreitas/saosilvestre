@@ -1,6 +1,6 @@
 
 import itertools
-from functools import partial, reduce
+from functools import partial
 import scraps
 import textparser
 import tinydf
@@ -46,25 +46,19 @@ class SaoSilvestreParser(textparser.TextParser):
         return None
 
 
-def compose(*functions):
-    return reduce(lambda f, g: lambda x: f(g(x)), functions)
-
-
 def keyfy(seq, key):
     return list(map(lambda x: [(key, x)], seq))
-
-
-stripeach = lambda seq: [str.strip(s) for s in seq]
-
-
-splitandstrip = compose(stripeach, partial(str.split, sep='\n'))
 
 
 class SaoSilvestreScrap(scraps.Scrap):
     names = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/h2')
     races = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/h4')
-    info1 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[1]', apply=splitandstrip)
-    info2 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[2]', apply=splitandstrip)
+    info1 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[1]', apply=[
+        partial(str.split, sep='\n'), lambda seq: [str.strip(s) for s in seq]
+    ])
+    info2 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[2]', apply=[
+        partial(str.split, sep='\n'), lambda seq: [str.strip(s) for s in seq]
+    ])
 
 
 class SaoSilvestrFetcher(scraps.Fetcher):
@@ -84,7 +78,7 @@ if __name__ == '__main__':
     ds.headers = ['nome', 'pais', 'corrida', 'ano', 'horario', 'tempo', 'percurso', 'largada', 'chegada']
     decades = [(2010, 2013), (2000, 2009), (1990, 1999), (1980, 1989), (1970, 1979), (1960, 1969), (1950, 1959),
                (1940, 1949), (1930, 1939), (1925, 1929)]
-    parse_and_filter_false = compose(list, partial(filter, lambda x: x is not None), partial(map, parser.parse))
+    parse_and_filter_false = scraps.compose(partial(map, parser.parse), partial(filter, lambda x: x is not None), list)
     for dec in decades:
         try:
             res = fetcher.fetch(*dec)

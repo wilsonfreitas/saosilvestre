@@ -1,4 +1,6 @@
 
+from functools import reduce
+import types
 from decimal import Decimal
 import types
 import pprint
@@ -15,7 +17,16 @@ class AttrDict(dict):
     def __setattr__(self, attr, value):
         self[attr] = value
         
-    
+
+def fetch(url, scrap, *args, **kwargs):
+    opener = urllib.request.build_opener()
+    req = urllib.request.Request(url.format(*args, **kwargs))
+    res = opener.open(req)
+    response = AttrDict()
+    response.text = res.read()
+    response.code = res.getcode()
+    scrap.lxml_parser(response.text)
+
 class Fetcher(object):
     """    Fetcher class represents the request handler. It defines the URL to be
     requested so as the method to parse.
@@ -90,10 +101,9 @@ class Attribute(object):
     """    Attribute class is a descriptor which represents each chunk of
         data extracted from a source of information.
     """
-    def __init__(self, xpath, repeat=False, apply=lambda x: x):
+    def __init__(self, xpath, apply=[]):
         self.xpath = xpath
         self.index = None
-        self.repeat = repeat
         self.apply = apply
     
     def parse(self, value):
@@ -105,7 +115,11 @@ class Attribute(object):
             iter(value)
         except:
             value = [value]
-        value = [self.apply(self.parse(v)) for v in value]
+        if len(self.apply) == 0:
+            apply = lambda x: x
+        else:
+            apply = compose(*self.apply)
+        value = [apply(self.parse(v)) for v in value]
         obj.attrs[self.index] = value
     
     def __get__(self, obj, typo=None):
@@ -202,6 +216,13 @@ def import_func(className, modName=None):
         raise TypeError("Not callable object found")
     else:
         return func
+
+
+def compose(*functions):
+    f = list(functions)
+    f.reverse()
+    return reduce(lambda f, g: lambda x: f(g(x)), f)
+
 
 class ProcessFetchers(object):
     def process(self, fetchers):

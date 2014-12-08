@@ -38,27 +38,32 @@ ss_ano <- ss %>%
   mutate(pace_dif=pace_feminino-pace_masculino) %>%
   select(ano, corrida, percurso_grupo, pace_masculino, pace_feminino, pace_dif)
 
-ss_ano_m <- gather(as.data.frame(ss_ano), variable, value, -ano, -corrida, -percurso_grupo, -pace_dif)
+ss_ano_m <- gather(ss_ano, variable, value, -ano, -corrida, -percurso_grupo, -pace_dif)
+ss_ano_m <- ss_ano_m %>% mutate(value=as.numeric(value))
 
-ggplot(data=filter(ss_ano_m, corrida == 2), aes(x=ano, y=as.numeric(value), colour=variable, shape=percurso_grupo)) +
+
+# análise pace_dif ----
+# 
+ggplot(data=filter(ss_ano_m, corrida == 2), aes(x=ano, y=value, colour=variable, shape=percurso_grupo)) +
   geom_point(size=3)
 
 ggplot(data=filter(ss_ano, corrida == 2), aes(x=ano, y=as.numeric(pace_dif, units='secs'))) +
   geom_line() + stat_smooth(method='lm')
 
-ggplot(data=ss, aes(pais, fill=sexo)) +
-  geom_bar() +
-  theme(axis.text.x=element_text(angle=45, hjust=1))
-
 # análise da regressão pace_dif ~ ano
 fit <- lm(as.numeric(pace_dif) ~ ano, data=filter(ss_ano, corrida == 2))
 summary(fit)
 
-# análise de temperatura
+# 
+ggplot(data=ss, aes(pais, fill=sexo)) +
+  geom_bar() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+
+# análise de umidade relativa ----
+#
 temp <- read.csv('temperatura.csv', header=TRUE, stringsAsFactor=FALSE)
 temp <- temp %>%
   mutate(Data=dmy(Data))
-# mutate(Data=as.Date(Data, format='%d/%m/%Y'))
 
 ggplot(data=temp, aes(x=Data, y=UmidadeRelativaMedia)) + geom_point() + stat_smooth(method='lm')
 
@@ -72,4 +77,17 @@ fit <- lm(as.numeric(TempCompensadaMedia) ~ year(Data), data=temp)
 summary(fit)
 
 # relacionando pace masculino e UmidadeRelativaMedia e TempCompensadaMedia
+temp <- temp %>% mutate(ano=year(Data))
+ss_temp <- merge(ss_ano, temp, by='ano')
 
+ggplot(data=filter(ss_temp, percurso_grupo == '> 10K'), aes(x=TempCompensadaMedia, y=as.numeric(pace_masculino), colour=ano)) +
+  geom_point() + stat_smooth(method='lm')
+
+ggplot(data=filter(ss_temp, percurso_grupo == '> 10K'), aes(x=UmidadeRelativaMedia, y=as.numeric(pace_masculino), colour=ano)) +
+  geom_point() + stat_smooth(method='lm')
+
+fit <- lm(as.numeric(UmidadeRelativaMedia) ~ as.numeric(pace_masculino), data=ss_temp)
+summary(fit)
+
+fit <- lm(as.numeric(TempCompensadaMedia) ~ as.numeric(pace_masculino), data=ss_temp)
+summary(fit)
