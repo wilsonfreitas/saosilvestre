@@ -50,45 +50,42 @@ def keyfy(seq, key):
     return list(map(lambda x: [(key, x)], seq))
 
 
+split = lambda sep=None, maxsplit=-1: lambda s: str.split(s, sep=sep, maxsplit=maxsplit)
+
+
+foreach = lambda func: lambda seq: [func(x) for x in seq]
+
+
 class SaoSilvestreScrap(scraps.Scrap):
     names = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/h2')
     races = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/h4')
     info1 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[1]', apply=[
-        partial(str.split, sep='\n'), lambda seq: [str.strip(s) for s in seq]
+        split(sep='\n'), foreach(str.strip)
     ])
     info2 = scraps.Attribute(xpath='//*[@id="content"]/div/div/div/div/div/p[2]', apply=[
-        partial(str.split, sep='\n'), lambda seq: [str.strip(s) for s in seq]
+        split(sep='\n'), foreach(str.strip)
     ])
-
-
-class SaoSilvestrFetcher(scraps.Fetcher):
-    scrapclass = SaoSilvestreScrap
-    url = 'http://www.saosilvestre.com.br/campeoes/campeoes-{0}-{1}/'
-
-
-class SaoSilvestrFetcher2(SaoSilvestrFetcher):
-    url = 'http://www.saosilvestre.com.br/campeoes/{0}-{1}/'
 
 
 if __name__ == '__main__':
-    parser = SaoSilvestreParser()
-    fetcher = SaoSilvestrFetcher()
-    fetcher2 = SaoSilvestrFetcher2()
     ds = tinydf.DataFrame()
     ds.headers = ['nome', 'pais', 'corrida', 'ano', 'horario', 'tempo', 'percurso', 'largada', 'chegada']
+    parser = SaoSilvestreParser()
+    parse_and_filter_false = scraps.compose(partial(map, parser.parse), partial(filter, lambda x: x is not None), list)
     decades = [(2010, 2013), (2000, 2009), (1990, 1999), (1980, 1989), (1970, 1979), (1960, 1969), (1950, 1959),
                (1940, 1949), (1930, 1939), (1925, 1929)]
-    parse_and_filter_false = scraps.compose(partial(map, parser.parse), partial(filter, lambda x: x is not None), list)
     for dec in decades:
+        scrap = SaoSilvestreScrap()
         try:
-            res = fetcher.fetch(*dec)
+            scrap.fetch('http://www.saosilvestre.com.br/campeoes/campeoes-{0}-{1}/', *dec)
         except:
-            res = fetcher2.fetch(*dec)
-        info1 = [parse_and_filter_false(x) for x in res.info1]
-        info2 = [parse_and_filter_false(x) for x in res.info2]
-        races = parse_and_filter_false(res.races)
-        names = keyfy(res.names, 'nome')
+            scrap.fetch('http://www.saosilvestre.com.br/campeoes/{0}-{1}/', *dec)
+        info1 = [parse_and_filter_false(x) for x in scrap.info1]
+        info2 = [parse_and_filter_false(x) for x in scrap.info2]
+        races = parse_and_filter_false(scrap.races)
+        names = keyfy(scrap.names, 'nome')
         rows = [dict(info1 + info2 + race + name) for info1, info2, race, name in zip(info1, info2, races, names)]
         for row in rows:
             ds.add(**row)
     print(ds.csv)
+

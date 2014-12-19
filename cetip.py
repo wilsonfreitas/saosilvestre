@@ -42,13 +42,8 @@ class CetipScrap(scraps.Scrap):
     ])
 
 
-class CetipFetcher(scraps.Fetcher):
-    scrapclass = CetipScrap
-    url = 'http://www.cetip.com.br'
+scrap = CetipScrap()
+scrap.fetch('http://www.cetip.com.br')
 
-
-fetcher = CetipFetcher()
-res = fetcher.fetch()
-
-print(res.data)
-print(res.taxa)
+print(scrap.data)
+print(scrap.taxa)
