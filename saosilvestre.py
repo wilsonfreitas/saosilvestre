@@ -1,5 +1,4 @@
 
-import itertools
 from functools import partial
 import scraps
 import textparser
