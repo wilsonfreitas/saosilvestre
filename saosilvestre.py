@@ -74,8 +74,8 @@ if __name__ == '__main__':
     parse_and_filter_false = scraps.compose(partial(map, parser.parse), partial(filter, lambda x: x is not None), list)
     decades = [(2010, 2013), (2000, 2009), (1990, 1999), (1980, 1989), (1970, 1979), (1960, 1969), (1950, 1959),
                (1940, 1949), (1930, 1939), (1925, 1929)]
+    scrap = SaoSilvestreScrap()
     for dec in decades:
-        scrap = SaoSilvestreScrap()
         try:
             scrap.fetch('http://www.saosilvestre.com.br/campeoes/campeoes-{0}-{1}/', *dec)
         except:
