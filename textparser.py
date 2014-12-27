@@ -1,15 +1,9 @@
-# encoding: utf-8
 
 import re
 from types import MethodType
 
 
 class TextParser(object):
-    """
-    Generic parser applied to column fields of a statements block.
-    The methods used to parse column fields start with parse and receives two parameters:
-    text to be parsed and match object of re module.
-    """
     def __init__(self):
         self.parsers = self.__createMethodAnalyzers()
         
@@ -36,10 +30,6 @@ class BooleanParser(TextParser):
     def parseBoolean(self, text, match):
         r'^[Tt][Rr][Uu][eE]|[Ff][Aa][Ll][Ss][Ee]$'
         return eval(text.lower().capitalize())
-    
-    def parseBoolean_ptBR(self, text, match):
-        r'^(sim|Sim|SIM|n.o|N.o|N.O)$'
-        return text[0].lower() == 's'
 
 
 class NumberParser(TextParser):
@@ -48,20 +38,35 @@ class NumberParser(TextParser):
         return eval(text)
     
     def parse_number_decimal(self, text, match):
-        r'^-?\s*\d+[\.,]\d+?$'
-        text = text.replace(',', '.')
+        r'^-?\s*\d+\.\d+?$'
         return eval(text)
     
     def parse_number_with_thousands(self, text, match):
         r'^-?\s*(\d+[,])+\d+[\.]\d+?$'
         text = text.replace(',', '')
         return eval(text)
-    
+
+
+class PortugueseRulesParser(TextParser):
+    def parseBoolean_ptBR(self, text, match):
+        r'^(sim|Sim|SIM|n.o|N.o|N.O)$'
+        return text[0].lower() == 's'
+
+    def parseBoolean_ptBR2(self, text, match):
+        r'^(verdadeiro|VERDADEIRO|falso|FALSO|V|F|v|f)$'
+        return text[0].lower() == 'v'
+
     def parse_number_with_thousands_ptBR(self, text, match):
-        r'^-?\s*(\d+[\.])+\d+[,]\d+?$'
+        r'^-?\s*(\d+\.)+\d+,\d+?$'
         text = text.replace('.', '')
         text = text.replace(',', '.')
         return eval(text)
+
+    def parse_number_decimal_ptBR(self, text, match):
+        r'^-?\s*\d+,\d+?$'
+        text = text.replace(',', '.')
+        return eval(text)
+    
 
 
 def textparse(text, regex, func):
@@ -77,25 +82,26 @@ def buildparser(regex, func):
     return _func
 
 
-class MegaParser(NumberParser, BooleanParser):
+class GenericParser(NumberParser, BooleanParser):
     pass
 
 
-parser = MegaParser()
-parse = parser.parse
+parse = GenericParser().parse
 
 
 if __name__ == '__main__':
-    parser = MegaParser()
-    assert parser.parse('1.1') == 1.1
+    assert parse('true')
+    assert parse('1.1') == 1.1
+    assert parse('11') == 11
+    assert parse('1,100.01') == 1100.01
+    
+    parser = PortugueseRulesParser()
     assert parser.parse('1,1') == 1.1
     assert parser.parse('-1,1') == -1.1
     assert parser.parse('- 1,1') == -1.1
-    assert parser.parse('11') == 11
-    assert parser.parse('true')
     assert parser.parse('Wálson') == 'Wálson'
     assert parser.parse('1.100,01') == 1100.01
-    assert parser.parse('1,100.01') == 1100.01
+    
     assert textparse('TRUe', r'^[Tt][Rr][Uu][eE]|[Ff][Aa][Ll][Ss][Ee]$', lambda t, m: eval(t.lower().capitalize()))
     assert textparse('1,1', r'^-?\s*\d+[\.,]\d+?$', lambda t, m: eval(t.replace(',', '.'))) == 1.1
     num_parser = buildparser(r'^-?\s*\d+[\.,]\d+?$', lambda t, m: eval(t.replace(',', '.')))
