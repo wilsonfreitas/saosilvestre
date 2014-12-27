@@ -46,8 +46,7 @@ class SaoSilvestreParser(textparser.TextParser):
         return None
 
 
-def keyfy(seq, key):
-    return list(map(lambda x: [(key, x)], seq))
+keyfy = lambda seq, key: list(map(lambda x: [(key, x)], seq))
 
 
 split = lambda sep=None, maxsplit=-1: lambda s: str.split(s, sep=sep, maxsplit=maxsplit)
@@ -80,11 +79,11 @@ if __name__ == '__main__':
             scrap.fetch('http://www.saosilvestre.com.br/campeoes/campeoes-{0}-{1}/', *dec)
         except:
             scrap.fetch('http://www.saosilvestre.com.br/campeoes/{0}-{1}/', *dec)
-        info1 = [parse_and_filter_false(x) for x in scrap.info1]
-        info2 = [parse_and_filter_false(x) for x in scrap.info2]
+        infos1 = [parse_and_filter_false(x) for x in scrap.info1]
+        infos2 = [parse_and_filter_false(x) for x in scrap.info2]
         races = parse_and_filter_false(scrap.races)
         names = keyfy(scrap.names, 'nome')
-        rows = [dict(info1 + info2 + race + name) for info1, info2, race, name in zip(info1, info2, races, names)]
+        rows = [dict(info1 + info2 + race + name) for info1, info2, race, name in zip(infos1, infos2, races, names)]
         for row in rows:
             ds.add(**row)
     print(ds.csv)
