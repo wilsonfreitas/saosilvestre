@@ -45,7 +45,7 @@ class Scrap(object):
     
     __str__ = __repr__
     
-    def lxml_parser(self, content):
+    def _lxml_parser(self, content):
         doc = html.document_fromstring(content)
         for k, xpath in list(self.xpaths.items()):
             elms = doc.xpath(xpath)
@@ -55,7 +55,7 @@ class Scrap(object):
         opener = urllib.request.build_opener()
         req = urllib.request.Request(url.format(*args, **kwargs))
         res = opener.open(req)
-        self.lxml_parser(res.read())
+        self._lxml_parser(res.read())
 
 
 class Attribute(object):
