@@ -1,4 +1,6 @@
 nome,pais,corrida,ano,horario,tempo,percurso,largada,chegada
+Dawit Admasu,Etiópia,90,2014,09:00:00,00:45:04.000,15000,"Av. Paulista, próximo à Rua Ministro Rocha Azevedo (sentido Consolação).","Av. Paulista, 900, em frente ao Edifício da Fundação Cásper Líbero."
+Ymer Wude Ayalew,Etiópia,90,2013,08:40:00,00:50:43.000,15000,"Av. Paulista, próximo à Rua Ministro Rocha Azevedo (sentido Consolação).","Av. Paulista, 900, em frente ao Edifício da Fundação Cásper Líbero."
 Edwin Kipsang,Quênia,89,2013,09:00:00,00:43:47.000,15000,"Av. Paulista, próximo à Rua Ministro Rocha Azevedo (sentido Consolação).","Av. Paulista, 900, em frente ao Edifício da Fundação Cásper Líbero."
 Nancy Kipron,Quênia,89,2013,08:40:00,00:51:58.000,15000,"Av. Paulista, próximo à Rua Ministro Rocha Azevedo (sentido Consolação).","Av. Paulista, 900, em frente ao Edifício da Fundação Cásper Líbero."
 Edwin Kipsang,Quênia,88,2012,09:00:00,00:44:05.000,15000,"Av. Paulista, próximo à Rua Frei Caneca.","Av. Paulista, 900, em frente ao Edifício da Fundação Cásper Líbero."
@@ -83,9 +85,9 @@ Victor Mora,Colômbia,48,1972,23:35:00,00:23:24.000,8900,"Av. Paulista 900, em f
 Rafael Tadeo Palomares,México,47,1971,23:38:00,00:23:47.000,8900,"Av. Paulista 900, em frente ao Edifício Cásper Líbero. Descida pela Brig. Luiz Antônio. Subida pela Rua da Consolação.","Av. Paulista 900, na frente do Edifício Cásper Líbero."
 Frank Shorter,Estados Unidos,46,1970,23:45:00,00:24:27.000,8900,"Av. Paulista 900, em frente ao Edifício Cásper Líbero. Descida pela Brig. Luiz Antônio. Subida pela Rua da Consolação.","Av. Paulista 900, na frente do Edifício Cásper Líbero."
 Juan Martinez,México,45,1969,23:45:00,00:24:02.000,8700,Av. Paulista 900 – Edifício Cásper Líbero – Descida pela Brig. L. Antônio,Av. Paulista 900 – Edifício Cásper Líbero – Subida pela Rua da Consolação
-Gaston Roelants,Bélgica,44,1968,23:50:00,00:24:32.000,8700,"Av. Paulista 900, em frente ao Edifício Cásper Líbero.","Av. Paulista 900, na frente do Edifício Cásper Líbero."
+Gaston Roelants,Bélgica,44,1968,23:50:00,00:24:32.000,8700,"Av. Paulista 900, em frente ao","Av. Paulista 900, na frente do"
 Gaston Roelants,Bélgica,43,1967,23:45:00,00:24:31.000,8700,Av. Paulista 900 – Edifício Cásper Líbero – Descida pela Brig. L. Antônio,Av. Paulista 900 – Edifício Cásper Líbero – Subida pela Rua da Consolação
-Alvaro Mejia Flores,Colômbia,42,1966,23:32:00,00:29:57.000,9200,"Av. Paulista 900, em frente ao Edifício Cásper Líbero","Av. Paulista 900, na frente do Edifício Cásper Líbero"
+Alvaro Mejia Flores,Colômbia,42,1966,23:32:00,00:29:57.000,9200,"Av. Paulista 900, em frente ao Edifício","Av. Paulista 900, na frente do Edifício"
 Gaston Roelants,Bélgica,41,1965,23:45:00,00:21:20.000,7400,Av. Cásper Líbero,Edifício Palácio da Imprensa – Rua da Conceição
 Gaston Roelants,Bélgica,40,1964,23:45:00,00:21:37.000,7400,Av. Cásper Líbero.,Edifício Palácio da Imprensa – Rua da Conceição
 Henry Clerckx,Bélgica,39,1963,23:45:00,00:21:55.000,7400,Av. Cásper Líbero.,Edifício Palácio da Imprensa – Rua da Conceição
