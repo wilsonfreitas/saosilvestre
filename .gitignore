@@ -5,3 +5,9 @@ lib/*
 include/*
 .Python
 .Rapp*
+.Rproj.user
+.ipynb_checkpoints/*
+.Rhistory
+man/*
+share/*
+pip-selfcheck.json
