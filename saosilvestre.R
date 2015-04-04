@@ -5,8 +5,12 @@ library(tidyr)
 library(lubridate)
 
 ss <- read.csv('saosilvestre.csv', header=TRUE, stringsAsFactor=FALSE)
+
+# limpeza de dados (1) ----
+ss <- ss %>% mutate(ano=ifelse(corrida == 90, 2014, ano))
+
 ss <- ss %>%
-  mutate(data=ISOdate(ano, 12, 1), 
+  mutate(data=ISOdate(ano, 12, 31), 
          horario=paste(format(data, '%Y-%m-%d'), horario),
          tempo=as.difftime(tempo),
          pace=1000*tempo/percurso) %>% # criar data e pace e formatar tempo e horario
@@ -15,7 +19,7 @@ ss <- ss %>%
   mutate(sexo=if (n() == 1) 'masculino' else c('masculino', 'feminino')) %>%
   ungroup
 
-## limpeza de dados
+# limpeza de dados (2) ----
 # dados faltantes
 idx <- grep('^-', ss$pais)
 ss[idx[1], 'pais'] <- 'Brasil'
@@ -54,10 +58,25 @@ ggplot(data=filter(ss_ano, corrida == 2), aes(x=ano, y=as.numeric(pace_dif, unit
 fit <- lm(as.numeric(pace_dif) ~ ano, data=filter(ss_ano, corrida == 2))
 summary(fit)
 
-# 
-ggplot(data=ss, aes(pais, fill=sexo)) +
+# análise de vitórias por pais ----
+tb_pais <- table(ss$pais)
+ss_pais <- ss %>% mutate(pais=factor(pais, levels=names(tb_pais)[order(tb_pais)]))
+
+ggplot(data=ss_pais, aes(pais, fill=sexo)) +
   geom_bar() +
   theme(axis.text.x=element_text(angle=45, hjust=1))
+
+tb_pais <- table(ss$pais)
+tb_pais_s <- table(ss$pais, ss$sexo)
+.levels <- names(tb_pais)[order(tb_pais, tb_pais_s[,1], tb_pais_s[,2])]
+ss_pais <- ss %>% mutate(pais=factor(pais, levels=.levels))
+
+ggplot(data=ss_pais, aes(pais, fill=sexo)) +
+  geom_bar() +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+
+# análise de vitórias por pais acumuladas ----
+
 
 # análise de umidade relativa ----
 #
