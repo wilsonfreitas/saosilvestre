@@ -105,8 +105,9 @@ ggplot(data=filter(ss_temp, percurso_grupo == '> 10K'), aes(x=TempCompensadaMedi
 ggplot(data=filter(ss_temp, percurso_grupo == '> 10K'), aes(x=UmidadeRelativaMedia, y=as.numeric(pace_masculino), colour=ano)) +
   geom_point() + stat_smooth(method='lm')
 
-fit <- lm(as.numeric(UmidadeRelativaMedia) ~ as.numeric(pace_masculino), data=ss_temp)
+fit <- lm(as.numeric(pace_masculino) ~ as.numeric(TempCompensadaMedia), data=filter(ss_temp, percurso_grupo == '> 10K'))
 summary(fit)
 
-fit <- lm(as.numeric(TempCompensadaMedia) ~ as.numeric(pace_masculino), data=ss_temp)
+fit <- lm(as.numeric(pace_masculino) ~ as.numeric(UmidadeRelativaMedia), data=filter(ss_temp, percurso_grupo == '> 10K'))
 summary(fit)
+
