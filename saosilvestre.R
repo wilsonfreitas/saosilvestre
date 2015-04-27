@@ -7,6 +7,13 @@ library(lubridate)
 ss <- read.csv('saosilvestre.csv', header=TRUE, stringsAsFactor=FALSE)
 
 # limpeza de dados (1) ----
+
+ss_agg <- ss %>% group_by(corrida) %>% mutate(cont=n())
+ggplot(ss_agg, aes(x=corrida, y=cont)) + geom_line()
+
+ss_agg <- ss %>% group_by(ano) %>% mutate(cont=n())
+ggplot(ss_agg, aes(x=ano, y=cont)) + geom_line() + geom_point()
+
 ss <- ss %>% mutate(ano=ifelse(corrida == 90, 2014, ano))
 
 ss <- ss %>%
@@ -31,7 +38,39 @@ ss[idx, 'pais'] <- 'Brasil'
 # percurso errado - atualiza o percurso e recalcula o pace.
 # o pace ajuda a identificar o percurso errado
 ss[which(ss$pace > 4),]$percurso <- 15000
+ss[which(ss$corrida == 52),]$percurso <- 8900
 ss <- ss %>% mutate(pace=1000*tempo/percurso)
+
+write.csv(ss, file='saosilvestre-lf.csv')
+
+# gráficos masculino ----
+library(gridExtra)
+plot1 <- ggplot(data=subset(ss, sexo=='masculino'), aes(x=ano, y=percurso)) +
+  geom_point() +
+  geom_line()
+plot2 <- ggplot(data=subset(ss, sexo=='masculino'), aes(x=ano, y=as.numeric(tempo))) +
+  geom_point() +
+  geom_line()
+plot3 <- ggplot(data=subset(ss, sexo=='masculino'), aes(x=ano, y=as.numeric(pace))) +
+  geom_point() +
+  geom_line()
+grid.arrange(plot1, plot2, plot3, nrow=3)
+
+round_percurso <- function(x) {
+  x_int <- as.integer(x)
+  x_int <- ifelse(abs(x - x_int) >= 0.8, round(x), floor(x))
+  as.integer(x_int)
+}
+
+ss_masc <- ss %>% subset(sexo=='masculino') %>%
+  mutate(percurso_f=as.factor(paste(round_percurso(percurso/1000), 'km')))
+
+ggplot(data=ss_masc,
+       aes(x=ano, y=as.numeric(tempo), colour=percurso_f)) +
+  geom_point()
+
+ggplot(data=ss_masc, aes(x=percurso_f)) +
+  geom_bar()
 
 # agrupamento por ano para comparar masculino e feminino
 ss_ano <- ss %>%
@@ -42,7 +81,7 @@ ss_ano <- ss %>%
   mutate(pace_dif=pace_feminino-pace_masculino) %>%
   select(ano, corrida, percurso_grupo, pace_masculino, pace_feminino, pace_dif)
 
-ss_ano_m <- gather(ss_ano, variable, value, -ano, -corrida, -percurso_grupo, -pace_dif)
+ss_ano_m <- tidyr::gather(ss_ano, variable, value, -ano, -corrida, -percurso_grupo, -pace_dif)
 ss_ano_m <- ss_ano_m %>% mutate(value=as.numeric(value))
 
 
