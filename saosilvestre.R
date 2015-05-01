@@ -41,7 +41,7 @@ ss[which(ss$pace > 4),]$percurso <- 15000
 ss[which(ss$corrida == 52),]$percurso <- 8900
 ss <- ss %>% mutate(pace=1000*tempo/percurso)
 
-write.csv(ss, file='saosilvestre-lf.csv')
+write.csv(ss, file='saosilvestre-lf.csv', row.names=FALSE)
 
 # gráficos masculino ----
 library(gridExtra)
